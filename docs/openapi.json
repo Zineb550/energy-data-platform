@@ -1,0 +1,1373 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EnergyInsight API",
+    "version": "1.0.0",
+    "description": "REST API of the EnergyInsight data platform.\n\n1. Call **POST /auth/login** (e.g. sara@energyinsight.ma / Sara12345, or admin@energyinsight.ma / Admin1234).\n2. Copy the token, click **Authorize** and paste it.\n\nEvery error has the same format: `{ \"error\": { \"message\": \"...\", \"details\": [...] } }`."
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Datasets"
+    },
+    {
+      "name": "Advanced features"
+    },
+    {
+      "name": "Analyses"
+    },
+    {
+      "name": "Dashboards"
+    },
+    {
+      "name": "Public (visitors)"
+    },
+    {
+      "name": "Administration"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Create an account",
+        "description": "Creates a user (role \"user\"). The password is hashed with bcrypt. Returns a JWT.\n\nOpen to visitors (no token).",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Account created, returns { user, token }"
+          },
+          "400": {
+            "description": "Invalid data"
+          },
+          "409": {
+            "description": "Email already used"
+          },
+          "429": {
+            "description": "Too many attempts"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Nadia Test",
+                "email": "nadia@example.com",
+                "password": "Password123"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Log in",
+        "description": "Returns a JWT valid 1 day. Send it as \"Authorization: Bearer <token>\". In Postman, the token is saved automatically.\n\nOpen to visitors (no token).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Logged in, returns { user, token }"
+          },
+          "401": {
+            "description": "Incorrect email or password"
+          },
+          "403": {
+            "description": "Account disabled"
+          },
+          "429": {
+            "description": "Too many attempts"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "email": "sara@energyinsight.ma",
+                "password": "Sara12345"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Current user",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The logged-in user"
+          },
+          "401": {
+            "description": "Not logged in"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Update my name",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Updated user"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "Sara Analyst"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me/password": {
+      "put": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Change my password",
+        "description": "The example keeps the same password, so the demo account still works after running the collection.\n\nRequires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Password updated"
+          },
+          "400": {
+            "description": "Current password incorrect"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "currentPassword": "Sara12345",
+                "newPassword": "Sara12345"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/categories": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "List of categories",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "{ categories }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/datasets": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "List datasets",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "description": "mine | shared | all",
+            "schema": {
+              "type": "string"
+            },
+            "example": "all"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text searched in title, description, category",
+            "schema": {
+              "type": "string"
+            },
+            "example": "energy"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ datasets }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Import a CSV file",
+        "description": "multipart/form-data. Column types (number, date, text) are detected automatically. Max 10 MB.\n\nRequires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "{ dataset }"
+          },
+          "400": {
+            "description": "Invalid file or data"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "title",
+                  "category"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "The .csv file"
+                  },
+                  "title": {
+                    "type": "string",
+                    "example": "My energy data"
+                  },
+                  "description": {
+                    "type": "string",
+                    "example": "Imported from Postman"
+                  },
+                  "category": {
+                    "type": "string",
+                    "example": "Energy",
+                    "description": "Energy | Electricity | Environment | Economy | Other"
+                  },
+                  "source": {
+                    "type": "string",
+                    "example": "Our World in Data"
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "example": "private",
+                    "description": "private | shared"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/datasets/{id}": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Dataset details (with columns)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ dataset }"
+          },
+          "403": {
+            "description": "No access"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Edit dataset information (owner or admin)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ dataset }"
+          },
+          "403": {
+            "description": "Not the owner"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "visibility": "shared"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Delete a dataset (owner or admin)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 99
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "403": {
+            "description": "Not the owner"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/datasets/{id}/rows": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Rows: search, filters, sort, pagination",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "description": "1 to 200",
+            "schema": {
+              "type": "string"
+            },
+            "example": "25"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Text searched in every column",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "year"
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "required": false,
+            "description": "asc | desc",
+            "schema": {
+              "type": "string"
+            },
+            "example": "desc"
+          },
+          {
+            "name": "filters",
+            "in": "query",
+            "required": false,
+            "description": "JSON array. op: eq, neq, gt, gte, lt, lte, contains",
+            "schema": {
+              "type": "string"
+            },
+            "example": "[{\"column\":\"country\",\"op\":\"eq\",\"value\":\"Morocco\"}]"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ rows, total, page, pageSize, totalPages }"
+          },
+          "400": {
+            "description": "Unknown column or invalid filter"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/datasets/{id}/stats": {
+      "get": {
+        "tags": [
+          "Datasets"
+        ],
+        "summary": "Automatic statistics (types, missing values, min/max/mean...)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ stats }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/datasets/{id}/quality": {
+      "get": {
+        "tags": [
+          "Advanced features"
+        ],
+        "summary": "Data quality score (0-100)",
+        "description": "Completeness (50 pts), uniqueness (25 pts), consistency (25 pts), grade A-D and recommendations.\n\nRequires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ quality }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/datasets/{id}/outliers": {
+      "get": {
+        "tags": [
+          "Advanced features"
+        ],
+        "summary": "Outlier detection (IQR method)",
+        "description": "Without \"column\": fences and outlier count for every numeric column. With \"column\": the most extreme rows of that column.\n\nRequires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          },
+          {
+            "name": "column",
+            "in": "query",
+            "required": false,
+            "description": "Optional numeric column",
+            "schema": {
+              "type": "string"
+            },
+            "example": "energy_per_capita"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ columns } or { detail }"
+          },
+          "400": {
+            "description": "Column is not numeric"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/analyses/run": {
+      "post": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Run an analysis without saving it (preview)",
+        "description": "metrics: 1-4 indicators (agg: sum | avg | min | max | count). groupBy: column or null. chart: bar | line | pie | kpi | table. forecast: optional { periods } (needs a numeric time grouping such as year).\n\nRequires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "{ result }: groups, values and optional forecast"
+          },
+          "400": {
+            "description": "Invalid configuration"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "datasetId": 1,
+                "config": {
+                  "metrics": [
+                    {
+                      "agg": "avg",
+                      "column": "renewables_share_energy"
+                    }
+                  ],
+                  "groupBy": "year",
+                  "filters": [
+                    {
+                      "column": "country",
+                      "op": "eq",
+                      "value": "Morocco"
+                    }
+                  ],
+                  "sort": "label_asc",
+                  "limit": 50,
+                  "chart": "line",
+                  "forecast": {
+                    "periods": 5
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyses": {
+      "get": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "List analyses",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "description": "mine | shared | all",
+            "schema": {
+              "type": "string"
+            },
+            "example": "all"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ analyses }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Save an analysis",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "{ analysis }"
+          },
+          "400": {
+            "description": "Invalid data"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "datasetId": 1,
+                "name": "Morocco renewables trend",
+                "description": "Created from Postman",
+                "visibility": "private",
+                "config": {
+                  "metrics": [
+                    {
+                      "agg": "avg",
+                      "column": "renewables_share_energy"
+                    }
+                  ],
+                  "groupBy": "year",
+                  "filters": [
+                    {
+                      "column": "country",
+                      "op": "eq",
+                      "value": "Morocco"
+                    }
+                  ],
+                  "sort": "label_asc",
+                  "limit": 50,
+                  "chart": "line",
+                  "forecast": {
+                    "periods": 5
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analyses/{id}": {
+      "get": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Analysis and its computed result",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ analysis, result }"
+          },
+          "403": {
+            "description": "Private analysis of someone else"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Update an analysis (owner or admin)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ analysis }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "visibility": "shared"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Analyses"
+        ],
+        "summary": "Delete an analysis (owner or admin)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 99
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/dashboards": {
+      "get": {
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "List dashboards",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "scope",
+            "in": "query",
+            "required": false,
+            "description": "mine | shared | all",
+            "schema": {
+              "type": "string"
+            },
+            "example": "all"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ dashboards }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Create a dashboard",
+        "description": "visibility: private | shared | public. A public dashboard receives a random link (publicSlug).\n\nRequires a logged-in user (JWT).",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "{ dashboard }"
+          },
+          "400": {
+            "description": "Invalid data or inaccessible analysis"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "name": "My dashboard",
+                "description": "",
+                "visibility": "private",
+                "widgets": [
+                  {
+                    "analysisId": 1,
+                    "size": "full"
+                  },
+                  {
+                    "analysisId": 2,
+                    "size": "half"
+                  }
+                ],
+                "filterColumns": [
+                  "country"
+                ],
+                "defaultFilters": [
+                  {
+                    "column": "country",
+                    "value": "Morocco"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dashboards/{id}": {
+      "get": {
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Dashboard and the values of its filters",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ dashboard, filterOptions }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Update a dashboard (owner or admin)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ dashboard }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "visibility": "public"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Delete a dashboard (owner or admin)",
+        "description": "Requires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 99
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/dashboards/{id}/data": {
+      "post": {
+        "tags": [
+          "Dashboards"
+        ],
+        "summary": "Compute every widget with the chosen filters",
+        "description": "A dashboard filter replaces the analysis filter on the same column.\n\nRequires a logged-in user (JWT).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ widgets }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "filters": [
+                  {
+                    "column": "country",
+                    "value": "Germany"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/public/dashboards": {
+      "get": {
+        "tags": [
+          "Public (visitors)"
+        ],
+        "summary": "List public dashboards",
+        "description": "Open to visitors (no token).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "{ dashboards }"
+          }
+        }
+      }
+    },
+    "/public/dashboards/{slug}": {
+      "get": {
+        "tags": [
+          "Public (visitors)"
+        ],
+        "summary": "A public dashboard",
+        "description": "Open to visitors (no token).",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "a1b2c3d4e5f6"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ dashboard, filterOptions }"
+          },
+          "404": {
+            "description": "Not public"
+          }
+        }
+      }
+    },
+    "/public/dashboards/{slug}/data": {
+      "post": {
+        "tags": [
+          "Public (visitors)"
+        ],
+        "summary": "Compute a public dashboard",
+        "description": "Open to visitors (no token).",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "a1b2c3d4e5f6"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ widgets }"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "filters": [
+                  {
+                    "column": "country",
+                    "value": "France"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/stats": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Global indicators and activity",
+        "description": "Requires an administrator (JWT with role admin).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "{ totals, activityByDay, actions, topUsers, recentUsers }"
+          },
+          "403": {
+            "description": "Not an admin"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/users": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "List users",
+        "description": "Requires an administrator (JWT with role admin).",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "description": "Name or email",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ users }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/users/{id}": {
+      "put": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Change role or status of a user",
+        "description": "status: active | disabled. role: user | admin. Try { \"status\": \"disabled\" } then log in as Karim: refused.\n\nRequires an administrator (JWT with role admin).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 4
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ user }"
+          },
+          "400": {
+            "description": "Cannot change your own account"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "example": {
+                "status": "active"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Delete a user and their content",
+        "description": "Requires an administrator (JWT with role admin).",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 99
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "description": "Cannot delete your own account"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/datasets": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Every dataset on the platform",
+        "description": "Requires an administrator (JWT with role admin).",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "{ datasets }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/admin/activity": {
+      "get": {
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Activity log (paginated)",
+        "description": "Requires an administrator (JWT with role admin).",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "1"
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "example": "25"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "description": "e.g. LOGIN, DATASET_IMPORT",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "{ rows, total, page, pageSize, totalPages }"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    }
+  }
+}

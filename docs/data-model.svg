@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 470" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11">
+  <defs>
+    <marker id="many" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="10" markerHeight="10" orient="auto">
+      <path d="M0 6h11M11 0 3 6l8 6" fill="none" stroke="#475569" stroke-width="1.4"/>
+    </marker>
+  </defs>
+  <rect width="960" height="470" fill="#fff"/>
+  <style>
+    .t { fill: #f8fafc; stroke: #94a3b8; }
+    .h { fill: #0f766e; }
+    .ht { fill: #fff; font-weight: 700; font-size: 12px; }
+    .f { fill: #0f172a; }
+    .k { fill: #9a3412; font-weight: 600; }
+    .fk { fill: #1d4ed8; }
+    .l { stroke: #475569; stroke-width: 1.4; fill: none; }
+  </style>
+
+  <!-- users -->
+  <g transform="translate(30,30)">
+    <rect class="t" width="200" height="150" rx="6"/><rect class="h" width="200" height="26" rx="6"/><rect class="h" y="14" width="200" height="12"/>
+    <text class="ht" x="10" y="18">users</text>
+    <text class="k" x="10" y="44">id  PK</text>
+    <text class="f" x="10" y="62">name, email (unique)</text>
+    <text class="f" x="10" y="80">password_hash (bcrypt)</text>
+    <text class="f" x="10" y="98">role  user | admin</text>
+    <text class="f" x="10" y="116">status  active | disabled</text>
+    <text class="f" x="10" y="134">created_at</text>
+  </g>
+
+  <!-- datasets -->
+  <g transform="translate(380,30)">
+    <rect class="t" width="210" height="168" rx="6"/><rect class="h" width="210" height="26" rx="6"/><rect class="h" y="14" width="210" height="12"/>
+    <text class="ht" x="10" y="18">datasets</text>
+    <text class="k" x="10" y="44">id  PK</text>
+    <text class="fk" x="10" y="62">owner_id  FK → users</text>
+    <text class="f" x="10" y="80">title, description</text>
+    <text class="f" x="10" y="98">category, source</text>
+    <text class="f" x="10" y="116">columns  JSONB (nom + type)</text>
+    <text class="f" x="10" y="134">row_count</text>
+    <text class="f" x="10" y="152">visibility  private | shared</text>
+  </g>
+
+  <!-- dataset_rows -->
+  <g transform="translate(720,30)">
+    <rect class="t" width="210" height="96" rx="6"/><rect class="h" width="210" height="26" rx="6"/><rect class="h" y="14" width="210" height="12"/>
+    <text class="ht" x="10" y="18">dataset_rows</text>
+    <text class="k" x="10" y="44">id  PK</text>
+    <text class="fk" x="10" y="62">dataset_id  FK → datasets</text>
+    <text class="f" x="10" y="80">row_index, data  JSONB</text>
+  </g>
+
+  <!-- analyses -->
+  <g transform="translate(380,270)">
+    <rect class="t" width="210" height="150" rx="6"/><rect class="h" width="210" height="26" rx="6"/><rect class="h" y="14" width="210" height="12"/>
+    <text class="ht" x="10" y="18">analyses</text>
+    <text class="k" x="10" y="44">id  PK</text>
+    <text class="fk" x="10" y="62">owner_id  FK → users</text>
+    <text class="fk" x="10" y="80">dataset_id  FK → datasets</text>
+    <text class="f" x="10" y="98">name, description</text>
+    <text class="f" x="10" y="116">config  JSONB</text>
+    <text class="f" x="10" y="134">visibility  private | shared</text>
+  </g>
+
+  <!-- dashboards -->
+  <g transform="translate(720,250)">
+    <rect class="t" width="210" height="168" rx="6"/><rect class="h" width="210" height="26" rx="6"/><rect class="h" y="14" width="210" height="12"/>
+    <text class="ht" x="10" y="18">dashboards</text>
+    <text class="k" x="10" y="44">id  PK</text>
+    <text class="fk" x="10" y="62">owner_id  FK → users</text>
+    <text class="f" x="10" y="80">name, description</text>
+    <text class="f" x="10" y="98">widgets  JSONB [analysisId]</text>
+    <text class="f" x="10" y="116">filter_columns, default_filters</text>
+    <text class="f" x="10" y="134">visibility  private|shared|public</text>
+    <text class="f" x="10" y="152">public_slug (unique)</text>
+  </g>
+
+  <!-- activity_log -->
+  <g transform="translate(30,290)">
+    <rect class="t" width="200" height="114" rx="6"/><rect class="h" width="200" height="26" rx="6"/><rect class="h" y="14" width="200" height="12"/>
+    <text class="ht" x="10" y="18">activity_log</text>
+    <text class="k" x="10" y="44">id  PK</text>
+    <text class="fk" x="10" y="62">user_id  FK → users (SET NULL)</text>
+    <text class="f" x="10" y="80">action, target</text>
+    <text class="f" x="10" y="98">created_at</text>
+  </g>
+
+  <!-- relations (1 -> many) -->
+  <path class="l" d="M230 90 H380" marker-end="url(#many)"/>
+  <path class="l" d="M590 70 H720" marker-end="url(#many)"/>
+  <path class="l" d="M485 198 V270" marker-end="url(#many)"/>
+  <path class="l" d="M230 150 C 300 150, 300 330, 380 330" marker-end="url(#many)"/>
+  <path class="l" d="M200 30 V12 H825 V250" marker-end="url(#many)" stroke-dasharray="0"/>
+  <path class="l" d="M130 180 V290" marker-end="url(#many)"/>
+  <path class="l" d="M590 360 H720" marker-end="url(#many)" stroke-dasharray="5 4"/>
+  <text x="604" y="352" fill="#475569">utilisée dans widgets</text>
+
+  <text x="30" y="455" fill="#64748b">Flèche : relation 1 → plusieurs. Suppression en cascade sauf activity_log (l'historique est conservé).</text>
+</svg>

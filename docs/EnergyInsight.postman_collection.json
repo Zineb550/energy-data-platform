@@ -1,0 +1,1342 @@
+{
+  "info": {
+    "name": "EnergyInsight API",
+    "description": "Start with \"Auth > Log in\": the token is saved automatically and used by every request.\nFor the Administration folder, first run \"Log in as admin\".\nRequires the API running on http://localhost:4000 (npm run dev in backend/).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Create an account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Creates a user (role \"user\"). The password is hashed with bcrypt. Returns a JWT.\n\nAccess: public",
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nadia Test\",\n  \"email\": \"nadia@example.com\",\n  \"password\": \"Password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Log in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Returns a JWT valid 1 day. Send it as \"Authorization: Bearer <token>\". In Postman, the token is saved automatically.\n\nAccess: public",
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sara@energyinsight.ma\",\n  \"password\": \"Sara12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "}",
+                  "pm.test(\"Logged in\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Update my name",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sara Analyst\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Change my password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "The example keeps the same password, so the demo account still works after running the collection.\n\nAccess: user",
+            "url": {
+              "raw": "{{baseUrl}}/auth/me/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me",
+                "password"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"Sara12345\",\n  \"newPassword\": \"Sara12345\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Datasets",
+      "item": [
+        {
+          "name": "List of categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                "categories"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "List datasets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets?scope=all&search=energy",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets"
+              ],
+              "query": [
+                {
+                  "key": "scope",
+                  "value": "all",
+                  "description": "mine | shared | all",
+                  "disabled": false
+                },
+                {
+                  "key": "search",
+                  "value": "energy",
+                  "description": "Text searched in title, description, category",
+                  "disabled": false
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Import a CSV file",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "description": "multipart/form-data. Column types (number, date, text) are detected automatically. Max 10 MB.\n\nAccess: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "The .csv file"
+                },
+                {
+                  "key": "title",
+                  "value": "My energy data",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Imported from Postman",
+                  "type": "text"
+                },
+                {
+                  "key": "category",
+                  "value": "Energy",
+                  "type": "text",
+                  "description": "Energy | Electricity | Environment | Economy | Other"
+                },
+                {
+                  "key": "source",
+                  "value": "Our World in Data",
+                  "type": "text"
+                },
+                {
+                  "key": "visibility",
+                  "value": "private",
+                  "type": "text",
+                  "description": "private | shared"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dataset details (with columns)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Rows: search, filters, sort, pagination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/:id/rows?page=1&pageSize=25&sortBy=year&sortDir=desc&filters=[{\"column\":\"country\",\"op\":\"eq\",\"value\":\"Morocco\"}]",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                ":id",
+                "rows"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25",
+                  "description": "1 to 200",
+                  "disabled": false
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Text searched in every column",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "year",
+                  "disabled": false
+                },
+                {
+                  "key": "sortDir",
+                  "value": "desc",
+                  "description": "asc | desc",
+                  "disabled": false
+                },
+                {
+                  "key": "filters",
+                  "value": "[{\"column\":\"country\",\"op\":\"eq\",\"value\":\"Morocco\"}]",
+                  "description": "JSON array. op: eq, neq, gt, gte, lt, lte, contains",
+                  "disabled": false
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Automatic statistics (types, missing values, min/max/mean...)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/:id/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                ":id",
+                "stats"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Edit dataset information (owner or admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visibility\": \"shared\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete a dataset (owner or admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "99"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Advanced features",
+      "item": [
+        {
+          "name": "Data quality score (0-100)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Completeness (50 pts), uniqueness (25 pts), consistency (25 pts), grade A-D and recommendations.\n\nAccess: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/:id/quality",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                ":id",
+                "quality"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Outlier detection (IQR method)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Without \"column\": fences and outlier count for every numeric column. With \"column\": the most extreme rows of that column.\n\nAccess: user",
+            "url": {
+              "raw": "{{baseUrl}}/datasets/:id/outliers?column=energy_per_capita",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "datasets",
+                ":id",
+                "outliers"
+              ],
+              "query": [
+                {
+                  "key": "column",
+                  "value": "energy_per_capita",
+                  "description": "Optional numeric column",
+                  "disabled": false
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Analyses",
+      "item": [
+        {
+          "name": "Run an analysis without saving it (preview)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "metrics: 1-4 indicators (agg: sum | avg | min | max | count). groupBy: column or null. chart: bar | line | pie | kpi | table. forecast: optional { periods } (needs a numeric time grouping such as year).\n\nAccess: user",
+            "url": {
+              "raw": "{{baseUrl}}/analyses/run",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analyses",
+                "run"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datasetId\": 1,\n  \"config\": {\n    \"metrics\": [\n      {\n        \"agg\": \"avg\",\n        \"column\": \"renewables_share_energy\"\n      }\n    ],\n    \"groupBy\": \"year\",\n    \"filters\": [\n      {\n        \"column\": \"country\",\n        \"op\": \"eq\",\n        \"value\": \"Morocco\"\n      }\n    ],\n    \"sort\": \"label_asc\",\n    \"limit\": 50,\n    \"chart\": \"line\",\n    \"forecast\": {\n      \"periods\": 5\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List analyses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/analyses?scope=all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analyses"
+              ],
+              "query": [
+                {
+                  "key": "scope",
+                  "value": "all",
+                  "description": "mine | shared | all",
+                  "disabled": false
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Save an analysis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/analyses",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analyses"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"datasetId\": 1,\n  \"name\": \"Morocco renewables trend\",\n  \"description\": \"Created from Postman\",\n  \"visibility\": \"private\",\n  \"config\": {\n    \"metrics\": [\n      {\n        \"agg\": \"avg\",\n        \"column\": \"renewables_share_energy\"\n      }\n    ],\n    \"groupBy\": \"year\",\n    \"filters\": [\n      {\n        \"column\": \"country\",\n        \"op\": \"eq\",\n        \"value\": \"Morocco\"\n      }\n    ],\n    \"sort\": \"label_asc\",\n    \"limit\": 50,\n    \"chart\": \"line\",\n    \"forecast\": {\n      \"periods\": 5\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Analysis and its computed result",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/analyses/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analyses",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update an analysis (owner or admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/analyses/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analyses",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "2"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visibility\": \"shared\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete an analysis (owner or admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/analyses/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analyses",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "99"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboards",
+      "item": [
+        {
+          "name": "List dashboards",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/dashboards?scope=all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboards"
+              ],
+              "query": [
+                {
+                  "key": "scope",
+                  "value": "all",
+                  "description": "mine | shared | all",
+                  "disabled": false
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create a dashboard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "visibility: private | shared | public. A public dashboard receives a random link (publicSlug).\n\nAccess: user",
+            "url": {
+              "raw": "{{baseUrl}}/dashboards",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboards"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"My dashboard\",\n  \"description\": \"\",\n  \"visibility\": \"private\",\n  \"widgets\": [\n    {\n      \"analysisId\": 1,\n      \"size\": \"full\"\n    },\n    {\n      \"analysisId\": 2,\n      \"size\": \"half\"\n    }\n  ],\n  \"filterColumns\": [\n    \"country\"\n  ],\n  \"defaultFilters\": [\n    {\n      \"column\": \"country\",\n      \"value\": \"Morocco\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Dashboard and the values of its filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/dashboards/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboards",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Compute every widget with the chosen filters",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "A dashboard filter replaces the analysis filter on the same column.\n\nAccess: user",
+            "url": {
+              "raw": "{{baseUrl}}/dashboards/:id/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboards",
+                ":id",
+                "data"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filters\": [\n    {\n      \"column\": \"country\",\n      \"value\": \"Germany\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update a dashboard (owner or admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/dashboards/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboards",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visibility\": \"public\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete a dashboard (owner or admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "description": "Access: user",
+            "url": {
+              "raw": "{{baseUrl}}/dashboards/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "dashboards",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "99"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public (visitors)",
+      "item": [
+        {
+          "name": "List public dashboards",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: public",
+            "url": {
+              "raw": "{{baseUrl}}/public/dashboards",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "dashboards"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "A public dashboard",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: public",
+            "url": {
+              "raw": "{{baseUrl}}/public/dashboards/:slug",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "dashboards",
+                ":slug"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "a1b2c3d4e5f6"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Compute a public dashboard",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Access: public",
+            "url": {
+              "raw": "{{baseUrl}}/public/dashboards/:slug/data",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "public",
+                "dashboards",
+                ":slug",
+                "data"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "slug",
+                  "value": "a1b2c3d4e5f6"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filters\": [\n    {\n      \"column\": \"country\",\n      \"value\": \"France\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Administration",
+      "item": [
+        {
+          "name": "Log in as admin (fills {{adminToken}})",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var data = pm.response.json();",
+                  "if (data.token) {",
+                  "  pm.collectionVariables.set(\"adminToken\", data.token);",
+                  "}",
+                  "pm.test(\"Logged in\", function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Run this before the Administration requests.\n\nAccess: public",
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@energyinsight.ma\",\n  \"password\": \"Admin1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Global indicators and activity",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: admin",
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "stats"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: admin",
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Name or email",
+                  "disabled": true
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change role or status of a user",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "status: active | disabled. role: user | admin. Try { \"status\": \"disabled\" } then log in as Karim: refused.\n\nAccess: admin",
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "4"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete a user and their content",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "description": "Access: admin",
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                ":id"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "99"
+                }
+              ]
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Every dataset on the platform",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: admin",
+            "url": {
+              "raw": "{{baseUrl}}/admin/datasets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "datasets"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Activity log (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Access: admin",
+            "url": {
+              "raw": "{{baseUrl}}/admin/activity?page=1&pageSize=25",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "activity"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": false
+                },
+                {
+                  "key": "pageSize",
+                  "value": "25",
+                  "disabled": false
+                },
+                {
+                  "key": "action",
+                  "value": "",
+                  "description": "e.g. LOGIN, DATASET_IMPORT",
+                  "disabled": true
+                }
+              ],
+              "variable": []
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{adminToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
